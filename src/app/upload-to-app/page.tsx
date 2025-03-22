@@ -1,9 +1,9 @@
-import DragDropUpload from "@/components/DragDropUpload";
+import React from 'react'
 
 export default function page() {
   return (
     <div>
-      <DragDropUpload/>
+      
     </div>
   )
 }
