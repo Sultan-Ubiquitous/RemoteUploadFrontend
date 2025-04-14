@@ -1,9 +1,9 @@
-import React from 'react'
 
 export default function page() {
+  
   return (
-    <div>
-      
+    <div className='flex min-h-screen justify-center items-center'>
+      Hello
     </div>
   )
 }

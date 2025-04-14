@@ -3,6 +3,7 @@ import { useAuth } from "@clerk/nextjs";
 
 export async function secureFetch(
   path: string,
+  token: string,
   options: RequestInit = {}
 ) {
   const {getToken} = useAuth();
