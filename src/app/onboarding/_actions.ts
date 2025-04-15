@@ -13,7 +13,6 @@ export const completeOnboarding =  async (formData: FormData) => {
   }
 
   const client = await clerkClient();
-  const onlyId = userId.slice(5);
   const user = await client.users.getUser(userId);
   const userType = formData.get('userType') as 'owner' | 'member' | null;
   const orgName = formData.get('orgName') as string | null;
@@ -29,11 +28,12 @@ export const completeOnboarding =  async (formData: FormData) => {
         'Authorization': `Bearer ${token}`
       }
     });
-    console.log('User created: ', response.data);
-    return response.data;
-
+    const responseData = JSON.parse(response.config.data)
+    console.log('User created: ', responseData.email);
+    
   } catch (error) {
     console.error("Failed to make an user: ", error);
+    return { error: 'Failed to create user account' };
   }
 
   
@@ -44,32 +44,61 @@ export const completeOnboarding =  async (formData: FormData) => {
   
   
   try {
-    // const metadata: { onboardingComplete: boolean;}  = {
-    //   onboardingComplete: true,
-    // }  
+    const metadata: { onboardingComplete: boolean;}  = {
+      onboardingComplete: true,
+    }  
 
     if(userType === 'owner') {
       if(!orgName || !orgSlug) {
         return {error: 'Organization name and slug is required'}
       }
       
-      //axios.post userId and orgName and orgSlug  to /create_organization because only owner will be making this request
-      console.log('Owner created hihi');
+      const response = await axios.post('http://localhost:8060/onboard/create_organization', {
+        orgName: orgName,
+        orgSlug: orgSlug,
+        ownerId: userId,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+     });
+      // console.log(responseData.ownerId);
       
-      return;
+      
+
+      //axios.post userId and orgName and orgSlug  to /create_organization because only owner will be making this request
+      console.log('Organization created hihi and onboarding complete', response.data);
+      
+      await client.users.updateUser(userId, {
+        publicMetadata: {
+          ...metadata,
+          role: 'owner',
+          organizationId: response.data
+        }
+      });
+
+      return {
+        success: 'Organization created successfully! Invite users to Organization from Invite page :)',
+        organization: {
+          name: orgName,
+          slug: orgSlug,
+          id: response.data
+        }
+      };
     }
 
     if(userType === 'member'){
-      //axios.post 
+      await client.users.updateUser(userId, {
+        publicMetadata: {
+          ...metadata,
+          role: 'member',
+        }
+      });
       console.log('Member created hihi');
-      return;
+      return {
+        success: 'Your account is created now please wait for your membership'
+      }
     }
-
-    // const updateUser = await client.users.updateUser(userId, {
-    //   publicMetadata: metadata
-    // });
-
-    return{message: "Did some shit"}
 
   } catch (error) {
     return { error: 'There was an error updating the user metadata.' }
