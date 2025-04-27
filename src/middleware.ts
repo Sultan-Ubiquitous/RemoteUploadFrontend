@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 
 const isOnboardingRote = createRouteMatcher(['/onboarding']);
-const isPublicRoute = createRouteMatcher(['/sign-in(.*)', '/sign-up(.*)', '/']) ;
+const isPublicRoute = createRouteMatcher(['/sign-in(.*)', '/sign-up(.*)', '/hello']) ;
+const isAdminRoute = createRouteMatcher(['/admin(.*)', '/upload(.*)']);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
 
@@ -11,6 +12,11 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
   if(userId && isOnboardingRote(req)){
     return NextResponse.next();
+  }
+
+  if(isAdminRoute(req) && (sessionClaims?.metadata?.role !== 'owner')){
+    const homeUrl = new URL('/', req.url);
+    return NextResponse.redirect(homeUrl);
   }
 
   if (!userId && !isPublicRoute(req)) {
