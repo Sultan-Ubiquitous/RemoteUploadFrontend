@@ -5,12 +5,20 @@ import { useRouter } from 'next/navigation';
 
 const OnboardingForm = () => {
 async function checkOnboarding(){
-  const onBoardingStatus = await apiClient.get('onboarding/onboardingStatus');
-  const isOnBoarded = onBoardingStatus.data.msg;
-  if(isOnBoarded){
-    router.push('/dashboard');   
+  try {
+    const onBoardingStatus = await apiClient.get('onboarding/onboardingStatus');
+    const isOnBoarded = onBoardingStatus.data.msg;
+  
+    if(isOnBoarded){
+      router.push('/dashboard');   
+    }
+  
+  } catch (error) {
+    console.log('Some error occured: ', error);
+    router.push('/signin'); 
     }
   }
+
   useEffect(()=>{
     checkOnboarding()
   }, []);  
@@ -30,6 +38,7 @@ async function checkOnboarding(){
     try {
       if (userType === 'editor') {
         await apiClient.post('/onboarding/onboardEditor');
+        router.push('/editor-dashboard');
       } else if (userType === 'youtuber') {
         if (!orgName || !orgSlug) {
           throw new Error('Organization name and slug are required');
@@ -38,8 +47,8 @@ async function checkOnboarding(){
           orgName,
           orgSlug,
         });
+        router.push('/dashboard');
       }
-      router.push('/dashboard');
     } catch (error: any) {
       setError(error.response?.data?.message || error.message || 'An error occurred');
       setIsLoading(false);
