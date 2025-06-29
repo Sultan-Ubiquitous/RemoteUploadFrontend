@@ -3,11 +3,7 @@
 export default function page() {
   return (
     <div className='flex min-h-screen justify-center items-center flex-col'>
-      <p>Welcome {"UserName"} from the {"OrganizationName"}</p>
-      <div className="flex items-center justify-center flex-row pt-5 gap-5">
-        <p>{"If Admin"}</p> <p>{"If User"}</p>
-      </div>
-        <p className="pt-5">{"If user, switch organization"}</p>
+      <h1>If you can see this you are an owner, if you can't you're a freebird editor open to choose any organization you choose.</h1>
     </div>
   );
 };
